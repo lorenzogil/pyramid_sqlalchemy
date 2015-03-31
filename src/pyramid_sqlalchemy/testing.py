@@ -10,6 +10,15 @@ from pyramid_sqlalchemy import Session
 import transaction
 
 
+def enable_sql_two_phase_commit_test(config, enable=True):
+    """Fake enable_sql_two_phase_commit function used in the tests."""
+
+
+def includeme_test(config):
+    """Fake includeme function that replaces the real one in the tests."""
+    config.add_directive('enable_sql_two_phase_commit', enable_sql_two_phase_commit_test)
+
+
 class DatabaseTestCase(unittest.TestCase):
     """Base class for tests which require a database connection.
 
@@ -35,7 +44,7 @@ class DatabaseTestCase(unittest.TestCase):
         if self.create_tables:
             metadata.create_all()
         super(DatabaseTestCase, self).setUp()
-        self._sqlalchemy_patcher = mock.patch('pyramid_sqlalchemy.includeme')
+        self._sqlalchemy_patcher = mock.patch('pyramid_sqlalchemy.includeme', includeme_test)
         self._sqlalchemy_patcher.start()
 
     def tearDown(self):
